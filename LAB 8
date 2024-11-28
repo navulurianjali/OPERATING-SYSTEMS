@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Process {
+    int id;
+    int burst_time;
+    int remaining_time;
+    int arrival_time;
+    int waiting_time;
+    int turnaround_time;
+};
+
+void calculateTimes(struct Process processes[], int n) {
+    int total_wt = 0, total_tat = 0;
+    for (int i = 0; i < n; i++) {
+        total_wt += processes[i].waiting_time;
+        total_tat += processes[i].turnaround_time;
+    }
+    printf("Average Waiting Time: %.2f\n", (float)total_wt / n);
+    printf("Average Turnaround Time: %.2f\n", (float)total_tat / n);
+}
+
+void roundRobinScheduling(struct Process processes[], int n, int time_quantum) {
+    int current_time = 0, completed = 0;
+    
+    while (completed != n) {
+        for (int i = 0; i < n; i++) {
+            if (processes[i].remaining_time > 0) {
+                if (processes[i].remaining_time > time_quantum) {
+                    processes[i].remaining_time -= time_quantum;
+                    current_time += time_quantum;
+                } else {
+                    current_time += processes[i].remaining_time;
+                    processes[i].turnaround_time = current_time - processes[i].arrival_time;
+                    processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+                    processes[i].remaining_time = 0;
+                    completed++;
+                }
+            }
+        }
+    }
+    calculateTimes(processes, n);
+}
+
+int main() {
+    int n, time_quantum;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    struct Process processes[n];
+    
+    printf("Enter time quantum: ");
+    scanf("%d", &time_quantum);
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter burst time and arrival time for process %d: ", i + 1);
+        scanf("%d %d", &processes[i].burst_time, &processes[i].arrival_time);
+        processes[i].id = i + 1;
+        processes[i].remaining_time = processes[i].burst_time;
+    }
+
+    roundRobinScheduling(processes, n, time_quantum);
+    return 0;
+}
