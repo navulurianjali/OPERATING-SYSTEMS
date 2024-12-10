@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES 10
+#define MAX_DIRS 5
+
+struct file {
+    char name[50];
+};
+
+struct directory {
+    char name[50];
+    struct file files[MAX_FILES];
+    int file_count;
+    struct directory* subdirectories[MAX_DIRS];
+    int dir_count;
+};
+
+void add_file(struct directory* dir, char* filename) {
+    if (dir->file_count < MAX_FILES) {
+        strcpy(dir->files[dir->file_count].name, filename);
+        dir->file_count++;
+    } else {
+        printf("Directory is full!\n");
+    }
+}
+
+void add_directory(struct directory* parent, char* dirname) {
+    if (parent->dir_count < MAX_DIRS) {
+        parent->subdirectories[parent->dir_count] = (struct directory*)malloc(sizeof(struct directory));
+        strcpy(parent->subdirectories[parent->dir_count]->name, dirname);
+        parent->subdirectories[parent->dir_count]->file_count = 0;
+        parent->subdirectories[parent->dir_count]->dir_count = 0;
+        parent->dir_count++;
+    } else {
+        printf("Directory is full!\n");
+    }
+}
+
+void display_directory(struct directory* dir, int level) {
+    for (int i = 0; i < level; i++) {
+        printf("\t");
+    }
+    printf("Directory: %s\n", dir->name);
+    
+    for (int i = 0; i < dir->file_count; i++) {
+        for (int j = 0; j < level + 1; j++) {
+            printf("\t");
+        }
+        printf("File: %s\n", dir->files[i].name);
+    }
+
+    for (int i = 0; i < dir->dir_count; i++) {
+        display_directory(dir->subdirectories[i], level + 1);
+    }
+}
+
+int main() {
+    struct directory root = {"root", {}, 0, {NULL}, 0};
+    
+    add_file(&root, "file1.txt");
+    add_file(&root, "file2.txt");
+    
+    add_directory(&root, "subdir1");
+    add_file(root.subdirectories[0], "subfile1.txt");
+    
+    add_directory(&root, "subdir2");
+    add_file(root.subdirectories[1], "subfile2.txt");
+
+    display_directory(&root, 0);
+    
+    return 0;
+}
