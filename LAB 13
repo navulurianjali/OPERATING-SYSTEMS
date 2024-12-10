@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 10
+#define MAX_PROCESSES 5
+
+// Structure for memory blocks
+struct block {
+    int size;
+    int is_free;
+};
+
+// Structure for processes
+struct process {
+    int size;
+    int allocated;
+};
+
+void first_fit(struct block blocks[], struct process processes[]) {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (blocks[j].is_free && blocks[j].size >= processes[i].size) {
+                blocks[j].is_free = 0; // Allocate memory
+                processes[i].allocated = 1;
+                printf("Process %d allocated block %d\n", i+1, j+1);
+                break;
+            }
+        }
+    }
+}
+
+void best_fit(struct block blocks[], struct process processes[]) {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int best_index = -1;
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (blocks[j].is_free && blocks[j].size >= processes[i].size) {
+                if (best_index == -1 || blocks[best_index].size > blocks[j].size) {
+                    best_index = j;
+                }
+            }
+        }
+        if (best_index != -1) {
+            blocks[best_index].is_free = 0;
+            processes[i].allocated = 1;
+            printf("Process %d allocated block %d\n", i+1, best_index+1);
+        }
+    }
+}
+
+void worst_fit(struct block blocks[], struct process processes[]) {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int worst_index = -1;
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (blocks[j].is_free && blocks[j].size >= processes[i].size) {
+                if (worst_index == -1 || blocks[worst_index].size < blocks[j].size) {
+                    worst_index = j;
+                }
+            }
+        }
+        if (worst_index != -1) {
+            blocks[worst_index].is_free = 0;
+            processes[i].allocated = 1;
+            printf("Process %d allocated block %d\n", i+1, worst_index+1);
+        }
+    }
+}
+
+int main() {
+    struct block blocks[MAX_BLOCKS] = {{100, 1}, {500, 1}, {200, 1}, {300, 1}, {600, 1}};
+    struct process processes[MAX_PROCESSES] = {{212, 0}, {417, 0}, {112, 0}, {426, 0}, {50, 0}};
+    
+    printf("First Fit:\n");
+    first_fit(blocks, processes);
+    
+    // Reset blocks and processes
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        blocks[i].is_free = 1;
+    }
+    
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        processes[i].allocated = 0;
+    }
+
+    printf("\nBest Fit:\n");
+    best_fit(blocks, processes);
+    
+    // Reset blocks and processes
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        blocks[i].is_free = 1;
+    }
+    
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        processes[i].allocated = 0;
+    }
+
+    printf("\nWorst Fit:\n");
+    worst_fit(blocks, processes);
+    
+    return 0;
+}
