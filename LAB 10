@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+
+#define MSG_SIZE 1024  // Message size
+
+// Message structure
+struct msg_buffer {
+    long msg_type;
+    char msg_text[MSG_SIZE];
+};
+
+int main() {
+    key_t key = ftok("msgfile", 65);  // Generate a unique key
+    int msgid = msgget(key, 0666 | IPC_CREAT);  // Create message queue
+
+    if (msgid == -1) {
+        perror("msgget failed");
+        exit(1);
+    }
+
+    struct msg_buffer message;
+    message.msg_type = 1;  // Message type (used to categorize the message)
+    
+    // Get message from user and send it to the queue
+    printf("Producer: Enter message: ");
+    fgets(message.msg_text, MSG_SIZE, stdin);
+    
+    if (msgsnd(msgid, &message, sizeof(message), 0) == -1) {
+        perror("msgsnd failed");
+        exit(1);
+    }
+
+    printf("Producer: Message sent to queue.\n");
+
+    return 0;
+}
