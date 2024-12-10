@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES 10
+
+struct file {
+    char name[50];
+};
+
+void add_file(struct file directory[], int* file_count, char* filename) {
+    if (*file_count < MAX_FILES) {
+        strcpy(directory[*file_count].name, filename);
+        (*file_count)++;
+    } else {
+        printf("Directory is full!\n");
+    }
+}
+
+void display_files(struct file directory[], int file_count) {
+    printf("Files in directory:\n");
+    for (int i = 0; i < file_count; i++) {
+        printf("%d. %s\n", i + 1, directory[i].name);
+    }
+}
+
+int main() {
+    struct file directory[MAX_FILES];
+    int file_count = 0;
+    
+    add_file(directory, &file_count, "file1.txt");
+    add_file(directory, &file_count, "file2.txt");
+    add_file(directory, &file_count, "file3.txt");
+    
+    display_files(directory, file_count);
+    
+    return 0;
+}
