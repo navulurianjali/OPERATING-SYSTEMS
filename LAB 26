@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *file;
+    char filename[100], ch;
+
+    printf("Enter the file name: ");
+    scanf("%s", filename);
+
+    // Create or open file
+    file = fopen(filename, "a+");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
+    printf("File '%s' opened successfully.\n", filename);
+
+    // Write to file
+    printf("Enter text to write to the file (Ctrl+D to stop):\n");
+    while ((ch = getchar()) != EOF) {
+        fputc(ch, file);
+    }
+
+    // Read file content
+    rewind(file);
+    printf("\nContent of the file:\n");
+    while ((ch = fgetc(file)) != EOF) {
+        putchar(ch);
+    }
+
+    fclose(file);
+    printf("\nFile closed successfully.\n");
+    return 0;
+}
